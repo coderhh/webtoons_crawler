@@ -22,17 +22,19 @@ def imageCrawler(url):
     logging.debug('Downloading episode page %s...' % url)
     res = requests.get(url,headers=headers)
     res.raise_for_status()
-    soup = bs4.BeautifulSoup(res.text,'lxml')
+    soup = bs4.BeautifulSoup(res.text,'html.parser')
     # Find the URL of the comic image.
     comicElem = soup.select('#_imageList img')
     if comicElem == []:
         logging.debug('Could not find comic images.')
     else:
         logging.debug(len(comicElem))
+        num = 0
         for elem in comicElem:
             comicUrl = elem.get('data-url')
             filebasename = os.path.basename(comicUrl)
-            filename = filebasename.split('?')[0]
+            #filename = filebasename.split('?')[0]
+            filename = str(num) + '.jpg'
             imageFilePath = os.path.join(folderName, filename)
             if not os.path.exists(imageFilePath):
                 logging.debug('Downloading image %s...' % (comicUrl))
@@ -46,6 +48,7 @@ def imageCrawler(url):
                 for chunk in res.iter_content(100000):
                     imageFile.write(chunk)
                 imageFile.close()
+            num = num + 1
             
 # Crawler to get pageLink
 def pageLinkCrawler(startUrl):
@@ -58,7 +61,7 @@ def pageLinkCrawler(startUrl):
             res.raise_for_status()
         except Exception as exc:
             logging.debug('There was a problem: %s' % (exc))
-        soup = bs4.BeautifulSoup(res.text,"lxml")
+        soup = bs4.BeautifulSoup(res.text,"html.parser")
         # Find the pagenite urls
         paginateElem = soup.select('.paginate a')
         next_page_link = ''
@@ -84,7 +87,7 @@ def episodeLinkCrawler(pageLinks):
             res.raise_for_status()
         except Exception as exc:
             logging.debug('There was a problem: %s' % (exc))
-        soup = bs4.BeautifulSoup(res.text,"lxml")
+        soup = bs4.BeautifulSoup(res.text,"html.parser")
         # Find the episode links
         episodeElem = soup.select('#_listUl li a')
         if episodeElem == []:
