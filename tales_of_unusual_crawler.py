@@ -14,6 +14,7 @@ start_time = time.time()
 def imageCrawler(url):
     folderName = os.path.basename(url).split('&')[1]
     os.makedirs(folderName,exist_ok=True) # store comics ./episode=XX
+    imageLinksFile = open(folderName+'.txt','w') 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
         'Referer': url
@@ -32,6 +33,7 @@ def imageCrawler(url):
         num = 0
         for elem in comicElem:
             comicUrl = elem.get('data-url')
+            imageLinksFile.write(comicUrl+'\n')
             filebasename = os.path.basename(comicUrl)
             #filename = filebasename.split('?')[0]
             filename = str(num) + '.jpg'
@@ -49,6 +51,7 @@ def imageCrawler(url):
                     imageFile.write(chunk)
                 imageFile.close()
             num = num + 1
+        imageLinksFile.close()
             
 # Crawler to get pageLink
 def pageLinkCrawler(startUrl):
